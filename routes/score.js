@@ -1,30 +1,29 @@
 import express from "express";
-import { scoreAnswer } from "../services/ollamaScorer.js";
+import { getMCQs } from "../services/ollamaScorer.js";
 
 const router = express.Router();
 
 router.post("/score-answer", async (req, res) => {
   try {
-    const { question, modelAnswer, studentAnswer, maxMarks = 10 } = req.body;
+    const { topic, level, numQuestions } = req.body;
 
-    if (!question || !modelAnswer || !studentAnswer) {
+    if (!topic || !level || !numQuestions) {
       return res.status(400).json({
-        error: "question, modelAnswer, and studentAnswer are required",
+        error: "topic, level, and numQuestions are required",
       });
     }
 
-    const result = await scoreAnswer({
-      question,
-      modelAnswer,
-      studentAnswer,
-      maxMarks,
+    const result = await getMCQs({
+      topic,
+      level,
+      numQuestions,
     });
 
     res.json(result);
   } catch (err) {
     console.error(err);
     res.status(500).json({
-      error: "Evaluation failed",
+      error: "Failed to fetch MCQs",
       details: err.message,
     });
   }
